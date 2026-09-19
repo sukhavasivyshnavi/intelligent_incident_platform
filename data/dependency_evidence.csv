@@ -1,0 +1,6 @@
+episode_id,affected_service,dependency,incident_start,dependency_peak_evidence,dependency_evidence_time,evidence_reason,cpu_usage,memory_usage,latency_ms,error_rate,db_connections
+1,api-gateway,user-service,2026-01-07 14:05:00,1,2026-01-07 13:35:00,high_cpu,47.63,52.34,133.04,0.26,40.52
+1,api-gateway,payment-service,2026-01-07 14:05:00,0,2026-01-07 13:35:00,,55.65,60.96,170.83,0.1,57.78
+1,api-gateway,notification-service,2026-01-07 14:05:00,0,2026-01-07 13:35:00,,37.8,47.64,102.66,0.15,28.3
+2,payment-service,database,2026-01-06 16:00:00,1,2026-01-06 15:45:00,high_cpu,67.83,68.91,102.37,0.22,69.07
+3,user-service,database,2026-01-06 18:05:00,0,2026-01-06 17:35:00,,57.52,65.84,111.96,0.24,73.09

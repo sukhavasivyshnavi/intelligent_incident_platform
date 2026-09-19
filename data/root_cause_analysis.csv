@@ -1,0 +1,9 @@
+episode_id,affected_service,failure,start_time,end_time,root_cause,root_cause_score,temporal_score,evidence_score,dependency_score,impact_score,incident_peak_evidence
+7,payment-service,db_connection_saturation,2026-01-06 15:45:00,2026-01-06 17:00:00,database,10.0,5,2.0,1,2,4
+3,database,db_connection_saturation,2026-01-06 16:15:00,2026-01-06 16:15:00,database,4.0,0,2.0,0,0,2
+5,database,db_connection_saturation,2026-01-06 16:25:00,2026-01-06 16:40:00,database,4.0,0,3.0,0,0,3
+6,database,db_connection_saturation,2026-01-06 17:00:00,2026-01-06 17:00:00,database,4.0,0,4.0,0,0,4
+4,database,cpu_overload,2026-01-06 16:20:00,2026-01-06 16:20:00,database,3.0,0,3.0,0,0,3
+2,database,cpu_overload,2026-01-06 16:10:00,2026-01-06 16:10:00,database,3.0,0,2.0,0,0,2
+1,api-gateway,cpu_overload,2026-01-07 14:05:00,2026-01-07 15:00:00,api-gateway,3.0,0,3.0,0,0,3
+8,user-service,memory_leak,2026-01-06 18:05:00,2026-01-06 20:00:00,user-service,3.0,0,2.0,0,0,2
