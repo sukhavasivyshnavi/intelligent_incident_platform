@@ -1,682 +1,497 @@
-\# Intelligent IT Incident Prediction, Root-Cause Analysis \& Resolution Platform
+# Intelligent IT Incident Prediction, Root-Cause Analysis & Resolution Platform
 
+> An end-to-end ML + RAG platform for detecting IT service failures, tracing dependency-aware root causes, and generating source-grounded incident reports.
 
+## Overview
 
-An intelligent IT incident analysis platform that combines Machine Learning, temporal telemetry analysis, service dependency analysis, Root-Cause Analysis (RCA), and Retrieval-Augmented Generation (RAG) to detect, investigate, and explain IT service failures.
+Modern IT incidents rarely originate where the first visible symptom appears. This project simulates that problem by combining telemetry-driven machine learning, temporal evidence, service dependency analysis, root-cause scoring, and Retrieval-Augmented Generation (RAG).
 
-
-
-\## Overview
-
-
-
-The platform follows an end-to-end incident analysis pipeline:
-
-
-
-\*\*Telemetry → Feature Engineering → Failure Classification → Incident Detection → Dependency Analysis → Root-Cause Analysis → RAG → Grounded Incident Report\*\*
-
-
-
-The goal is to combine machine learning with LLM-based retrieval to support faster and more explainable IT incident investigation.
-
-
-
-\## Key Features
-
-
-
-\* Synthetic IT telemetry generation
-
-\* Temporal feature engineering using lag and rolling statistics
-
-\* Failure classification using Random Forest
-
-\* Incident timeline detection
-
-\* Service dependency graph analysis
-
-\* Failure-specific evidence scoring
-
-\* Dependency-aware root-cause analysis
-
-\* Incident RAG integration
-
-\* Source-grounded LLM incident reporting
-
-\* Source validation to reduce hallucinated documents and evidence
-
-
-
-\## Services
-
-
-
-The simulated environment contains five services:
-
-
-
-\* `api-gateway`
-
-\* `user-service`
-
-\* `payment-service`
-
-\* `notification-service`
-
-\* `database`
-
-
-
-\## Failure Types
-
-
-
-The platform currently analyzes:
-
-
-
-\* Normal
-
-\* CPU Overload
-
-\* Memory Leak
-
-\* Database Connection Saturation
-
-
-
-\## System Architecture
-
-
-
-```text
-
-&#x20;                   ┌─────────────────────┐
-
-&#x20;                   │ Synthetic Telemetry │
-
-&#x20;                   └──────────┬──────────┘
-
-&#x20;                              │
-
-&#x20;                              ▼
-
-&#x20;                   ┌─────────────────────┐
-
-&#x20;                   │ Feature Engineering │
-
-&#x20;                   └──────────┬──────────┘
-
-&#x20;                              │
-
-&#x20;                              ▼
-
-&#x20;                   ┌─────────────────────┐
-
-&#x20;                   │ Failure Classifier  │
-
-&#x20;                   │   Random Forest     │
-
-&#x20;                   └──────────┬──────────┘
-
-&#x20;                              │
-
-&#x20;                              ▼
-
-&#x20;                   ┌─────────────────────┐
-
-&#x20;                   │ Incident Timeline   │
-
-&#x20;                   │     Detection       │
-
-&#x20;                   └──────────┬──────────┘
-
-&#x20;                              │
-
-&#x20;                              ▼
-
-&#x20;                   ┌─────────────────────┐
-
-&#x20;                   │ Dependency \&        │
-
-&#x20;                   │ Evidence Analysis   │
-
-&#x20;                   └──────────┬──────────┘
-
-&#x20;                              │
-
-&#x20;                              ▼
-
-&#x20;                   ┌─────────────────────┐
-
-&#x20;                   │ Root-Cause Analysis │
-
-&#x20;                   └──────────┬──────────┘
-
-&#x20;                              │
-
-&#x20;                              ▼
-
-&#x20;                   ┌─────────────────────┐
-
-&#x20;                   │    Incident RAG     │
-
-&#x20;                   └──────────┬──────────┘
-
-&#x20;                              │
-
-&#x20;                              ▼
-
-&#x20;                   ┌─────────────────────┐
-
-&#x20;                   │ Grounded Incident   │
-
-&#x20;                   │       Report        │
-
-&#x20;                   └─────────────────────┘
+The platform follows this pipeline:
 
 ```
-
-
-
-\## Dataset
-
-
-
-The project uses a synthetic telemetry dataset containing:
-
-
-
-\* 7 days of telemetry
-
-\* 5 services
-
-\* 5-minute intervals
-
-\* 10,080 telemetry records
-
-\* 32 engineered features
-
-
-
-The dataset contains incidents representing:
-
-
-
-\* Database connection saturation
-
-\* Memory leak
-
-\* CPU overload
-
-
-
-A causal database incident is also simulated where the database begins degrading before the dependent payment service shows failure symptoms.
-
-
-
-\## Machine Learning
-
-
-
-A Random Forest classifier is used for failure classification.
-
-
-
-Configuration:
-
-
-
-```text
-
-n\_estimators = 300
-
-class\_weight = balanced
-
-random\_state = 42
-
-n\_jobs = -1
-
+Telemetry
+   ↓
+Temporal Feature Engineering
+   ↓
+Failure Classification
+   ↓
+Incident Timeline Detection
+   ↓
+Failure-Specific Evidence
+   ↓
+Service Dependency Analysis
+   ↓
+Root-Cause Analysis
+   ↓
+Incident RAG
+   ↓
+Grounded Incident Report
 ```
 
+The main objective is **explainable incident analysis**: instead of only predicting a failure type, the system uses *when* a failure occurred, *which service depends on which*, and *what supporting evidence exists* to identify a plausible upstream root cause.
 
+---
 
-Current evaluation on the synthetic test split:
+## What the Project Does
 
+### 1. Generates IT telemetry
+Creates a synthetic 7-day telemetry stream for five interconnected services at 5-minute intervals.
 
+### 2. Builds temporal features
+Creates lag, change, rolling mean, and rolling standard-deviation features so the model can capture degradation patterns rather than relying only on absolute metric values.
 
-```text
+### 3. Classifies failures
+A Random Forest classifier identifies:
 
-Macro F1-score: 0.93
+- Normal
+- CPU overload
+- Memory leak
+- Database connection saturation
+
+### 4. Detects incident episodes
+Groups consecutive abnormal predictions into incident timelines and measures duration, peak severity, latency, and error behavior.
+
+### 5. Traces dependencies
+Uses a service dependency graph to distinguish an affected service from a possible upstream cause.
+
+### 6. Performs root-cause analysis
+Combines:
+
+- Temporal evidence
+- Failure-specific evidence
+- Dependency relationships
+- Impact information
+
+### 7. Grounds the investigation with RAG
+Retrieves relevant incident reports, runbooks, deployment records, logs, and architecture documentation.
+
+### 8. Generates a source-grounded report
+The LLM is explicitly constrained to use retrieved evidence and avoid inventing filenames, incident IDs, or technical facts.
+
+---
+
+## Architecture
 
 ```
-
-
-
-The dataset is synthetic and is intended to demonstrate the end-to-end incident-analysis pipeline rather than represent production-level model performance.
-
-
-
-\## Root-Cause Analysis
-
-
-
-The platform combines:
-
-
-
-\* Temporal evidence
-
-\* Failure-specific evidence
-
-\* Service dependency relationships
-
-\* Incident impact information
-
-
-
-Example dependency:
-
-
-
-```text
-
-payment-service → database
-
+┌──────────────────────┐
+│ Synthetic Telemetry  │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Feature Engineering  │
+│ Lag + Rolling Stats  │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Failure Classifier   │
+│    Random Forest     │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Incident Timeline    │
+│      Detection       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Evidence + Dependency│
+│      Analysis        │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Root-Cause Analysis  │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│     Incident RAG     │
+│ Chroma + Embeddings  │
+│      + Llama 3.2     │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│ Grounded Incident    │
+│       Report         │
+└──────────────────────┘
 ```
 
+---
 
+## Simulated Environment
 
-For the main database saturation incident, the system identified:
+The project models five services:
 
+| Service | Role |
+|---|---|
+| `api-gateway` | Entry point for application requests |
+| `user-service` | User-related application operations |
+| `payment-service` | Payment processing |
+| `notification-service` | Notification handling |
+| `database` | Shared database dependency |
 
+### Dependency graph
 
-```text
+```
+api-gateway
+ ├── user-service ──────┐
+ ├── payment-service ───┼──> database
+ └── notification-service
+```
 
+---
+
+## Dataset
+
+The synthetic dataset contains:
+
+- **7 days** of telemetry
+- **5 services**
+- **5-minute intervals**
+- **10,080 telemetry records**
+- **32 engineered features**
+
+The simulated incidents include:
+
+- Database connection saturation
+- Memory leak
+- CPU overload
+
+A dedicated causal scenario is included where the **database begins degrading before the dependent payment service exhibits failure symptoms**. This provides a controlled case for testing temporal and dependency-aware root-cause analysis.
+
+---
+
+## Machine Learning
+
+### Failure classifier
+
+The failure classification model uses a Random Forest with:
+
+```
+n_estimators = 300
+class_weight = balanced
+random_state = 42
+n_jobs = -1
+```
+
+### Evaluation
+
+On the synthetic time-based test split:
+
+**Macro F1-score: 0.93**
+
+The dataset is intentionally synthetic, so this metric demonstrates the behavior of the implemented pipeline rather than production-level model performance.
+
+---
+
+## Root-Cause Analysis
+
+The RCA layer does not simply assume that the affected service is the root cause.
+
+It evaluates candidate upstream dependencies using temporal and technical evidence.
+
+### Example
+
+For the simulated database saturation incident:
+
+```
 Affected Service : payment-service
-
-Detected Failure : db\_connection\_saturation
-
+Detected Failure : db_connection_saturation
 Root Cause       : database
 
 RCA Score        : 10.0
-
 Temporal Score   : 5.0
-
 Evidence Score   : 2.0
-
 Dependency Score : 1.0
-
+Impact Score     : 2.0
 ```
 
+The key causal relationship is:
 
+```
+database degradation
+        ↓
+payment-service degradation
+```
 
-The database degradation occurs before the payment-service incident, providing temporal and dependency evidence for the root-cause decision.
+This allows the platform to separate a **symptom** from a likely **upstream source** when the available evidence supports that relationship.
 
+---
 
+## Incident RAG
 
-\## Incident RAG
+The RAG layer connects ML findings with a structured IT incident knowledge base.
 
+### Knowledge sources
 
+- Incident reports
+- Troubleshooting runbooks
+- Deployment records
+- Application logs
+- Architecture documentation
 
-The RAG component connects the machine-learning analysis with an IT incident knowledge base containing:
+For the payment-service investigation, the retrieved sources include:
 
-
-
-\* Incident reports
-
-\* Runbooks
-
-\* Deployment records
-
-\* Application logs
-
-\* Architecture documentation
-
-
-
-For the payment-service incident, the system retrieves evidence from:
-
-
-
-```text
-
+```
 INC-1001.txt
-
-payment\_api\_503\_runbook.md
-
+payment_api_503_runbook.md
 payment-api-v2.4.1.txt
-
-payment\_api\_incident\_1001.log
-
-payment\_api\_architecture.md
-
+payment_api_incident_1001.log
+payment_api_architecture.md
 ```
 
+The RAG pipeline uses:
 
+- Sentence Transformers embeddings
+- ChromaDB
+- LangChain
+- Ollama
+- Llama 3.2
 
-The LLM is instructed to use only retrieved sources and not invent filenames, incident IDs, or technical evidence.
+The report-generation prompt is designed to:
 
+1. Use only retrieved sources.
+2. Distinguish ML findings from documentary evidence.
+3. Avoid inventing filenames or incident IDs.
+4. Explicitly identify unavailable evidence instead of fabricating it.
+5. Validate generated source filenames against the retrieved source set.
 
+---
 
-\## Project Structure
+## Example Investigation Flow
 
+```
+Payment API starts showing failures
+              ↓
+Telemetry detects abnormal latency/errors
+              ↓
+Failure classifier identifies
+database connection saturation
+              ↓
+Timeline analysis identifies the incident episode
+              ↓
+Dependency analysis finds:
+payment-service → database
+              ↓
+Earlier database degradation is detected
+              ↓
+RCA identifies database as the upstream root cause
+              ↓
+RAG retrieves:
+incident + runbook + deployment + logs + architecture
+              ↓
+LLM generates a grounded incident report
+```
 
+---
 
-```text
+## Project Structure
 
-intelligent\_incident\_platform/
-
+```
+intelligent_incident_platform/
 │
-
 ├── data/
-
 │   ├── telemetry.csv
-
-│   ├── engineered\_telemetry.csv
-
-│   ├── failure\_predictions.csv
-
-│   ├── incident\_evidence.csv
-
-│   ├── incident\_timeline.csv
-
-│   ├── failure\_specific\_evidence.csv
-
-│   ├── root\_cause\_analysis.csv
-
-│   └── dependency\_evidence.csv
-
+│   ├── engineered_telemetry.csv
+│   ├── failure_predictions.csv
+│   ├── incident_evidence.csv
+│   ├── incident_timeline.csv
+│   ├── failure_specific_evidence.csv
+│   ├── root_cause_analysis.csv
+│   └── dependency_evidence.csv
 │
-
 ├── reports/
-
-│   ├── payment\_latency.png
-
-│   └── service\_dependency\_graph.png
-
+│   ├── payment_latency.png
+│   └── service_dependency_graph.png
 │
-
 ├── src/
-
-│   ├── data\_generator.py
-
-│   ├── data\_generator\_backup.py
-
-│   ├── feature\_engineering.py
-
-│   ├── failure\_classifier.py
-
-│   ├── anomaly\_detector.py
-
-│   ├── evidence\_analyzer.py
-
-│   ├── incident\_timeline.py
-
-│   ├── dependency\_graph.py
-
-│   ├── dependency\_evidence\_analyzer.py
-
-│   ├── failure\_specific\_evidence.py
-
-│   ├── root\_cause\_analyzer.py
-
-│   ├── rag\_integration.py
-
-│   └── incident\_rag\_analyzer.py
-
+│   ├── data_generator.py
+│   ├── feature_engineering.py
+│   ├── failure_classifier.py
+│   ├── anomaly_detector.py
+│   ├── evidence_analyzer.py
+│   ├── incident_timeline.py
+│   ├── dependency_graph.py
+│   ├── dependency_evidence_analyzer.py
+│   ├── failure_specific_evidence.py
+│   ├── root_cause_analyzer.py
+│   ├── rag_integration.py
+│   └── incident_rag_analyzer.py
 │
-
 ├── .gitignore
-
 ├── README.md
-
 └── requirements.txt
-
 ```
 
+---
 
+## Tech Stack
 
-\## Technologies Used
+**Programming & Data**
+- Python
+- Pandas
+- NumPy
 
+**Machine Learning**
+- Scikit-learn
+- Random Forest
 
+**Visualization & Graph Analysis**
+- Matplotlib
+- Seaborn
+- NetworkX
 
-\* Python
+**RAG / GenAI**
+- LangChain
+- Sentence Transformers
+- ChromaDB
+- Ollama
+- Llama 3.2
 
-\* Pandas
+---
 
-\* NumPy
+## Getting Started
 
-\* Scikit-learn
+### 1. Clone the repository
 
-\* Matplotlib
+```bash
+git clone https://github.com/sukhavasivyshnavi/intelligent_incident_platform.git
+cd intelligent_incident_platform
+```
 
-\* Seaborn
+### 2. Create a virtual environment
 
-\* NetworkX
-
-\* Sentence Transformers
-
-\* LangChain
-
-\* ChromaDB
-
-\* Ollama
-
-\* Llama 3.2
-
-
-
-\## Installation
-
-
-
-Create a virtual environment:
-
-
+**Windows PowerShell**
 
 ```powershell
-
 python -m venv .venv
-
+.\.venv\Scripts\Activate.ps1
 ```
 
-
-
-Activate the environment:
-
-
+### 3. Install dependencies
 
 ```powershell
-
-.\\.venv\\Scripts\\Activate.ps1
-
-```
-
-
-
-Install dependencies:
-
-
-
-```powershell
-
 pip install -r requirements.txt
-
 ```
 
+---
 
+## Running the ML Pipeline
 
-\## Running the Pipeline
+Run the stages in order:
 
-
-
-\### 1. Generate telemetry
-
-
+### Generate telemetry
 
 ```powershell
-
-python src/data\_generator.py
-
+python src/data_generator.py
 ```
 
-
-
-\### 2. Perform feature engineering
-
-
+### Feature engineering
 
 ```powershell
-
-python src/feature\_engineering.py
-
+python src/feature_engineering.py
 ```
 
-
-
-\### 3. Train and evaluate the failure classifier
-
-
+### Failure classification
 
 ```powershell
-
-python src/failure\_classifier.py
-
+python src/failure_classifier.py
 ```
 
-
-
-\### 4. Detect incident timelines
-
-
+### Incident timeline detection
 
 ```powershell
-
-python src/incident\_timeline.py
-
+python src/incident_timeline.py
 ```
 
-
-
-\### 5. Analyze failure-specific evidence
-
-
+### Failure-specific evidence analysis
 
 ```powershell
-
-python src/failure\_specific\_evidence.py
-
+python src/failure_specific_evidence.py
 ```
 
-
-
-\### 6. Perform root-cause analysis
-
-
+### Root-cause analysis
 
 ```powershell
-
-python src/root\_cause\_analyzer.py
-
+python src/root_cause_analyzer.py
 ```
 
-
-
-\### 7. Run the RAG-based incident analysis
-
-
+### RAG-based incident investigation
 
 ```powershell
-
-python src/incident\_rag\_analyzer.py
-
+python src/incident_rag_analyzer.py
 ```
 
+---
 
+## RAG Prerequisites
 
-\## RAG Setup
+The incident RAG analyzer uses Ollama with Llama 3.2.
 
-
-
-The RAG component uses Ollama with Llama 3.2.
-
-
-
-Pull the required model:
-
-
+Install Ollama separately and pull the model:
 
 ```powershell
-
 ollama pull llama3.2
-
 ```
 
+The RAG analyzer also expects the supporting Incident RAG knowledge base to be available with the referenced incident, runbook, deployment, log, and architecture documents.
 
+---
 
-The RAG component also requires the supporting Incident RAG knowledge base and its documents.
+## Key Engineering Decisions
 
+### Temporal reasoning
+Current and historical telemetry are compared using lag and rolling features so that the system can detect degradation trends.
 
+### Evidence-first RCA
+Root-cause selection requires supporting evidence rather than relying only on dependency relationships.
 
-\## Limitations
+### Dependency-aware reasoning
+A service that fails first is not automatically treated as the root cause. Upstream dependencies are considered when their degradation precedes the observed incident.
 
+### Grounded generation
+The LLM receives retrieved technical sources and is instructed to stay within that evidence boundary.
 
+### Synthetic-data transparency
+All incident telemetry is synthetic. Results are presented as a demonstration of the architecture and reasoning pipeline, not as a benchmark on real production incidents.
 
-\* Telemetry is synthetically generated.
+---
 
-\* Failure patterns are simplified compared with real production environments.
+## Limitations
 
-\* The service dependency graph is currently predefined.
+- Telemetry is synthetically generated.
+- Failure patterns are simplified.
+- The dependency graph is currently predefined.
+- Some incidents can be fragmented when the classifier changes predicted failure types during a degradation period.
+- RCA quality depends on the temporal and evidence signals available.
+- RAG quality depends on the coverage and relevance of the knowledge base.
+- Real production telemetry, distributed tracing, alert streams, and deployment metadata are not yet connected.
 
-\* Incident episodes can occasionally be fragmented when predicted failure types change.
+---
 
-\* Root-cause analysis depends on the quality of temporal, dependency, and evidence signals.
+## Future Work
 
-\* LLM output depends on the quality and coverage of retrieved knowledge-base documents.
+- Real-time telemetry ingestion
+- Streaming anomaly detection
+- Automated dependency discovery
+- Distributed-tracing integration
+- Advanced temporal models
+- Graph-based root-cause analysis
+- Reranking for incident RAG
+- LLM-based incident investigation agents
+- Automated remediation workflows
+- Integration with production observability platforms
+- Evaluation on real-world incident datasets
 
+---
 
+## Author
 
-\## Future Improvements
-
-
-
-\* Real-time telemetry ingestion
-
-\* Streaming anomaly detection
-
-\* Advanced temporal models
-
-\* Automated service dependency discovery
-
-\* Graph Neural Network-based root-cause analysis
-
-\* Advanced RAG with reranking
-
-\* LLM-based incident investigation agents
-
-\* Automated remediation recommendations
-
-\* Production monitoring integration
-
-\* Evaluation using real-world incident datasets
-
-
-
-\## Author
-
-
-
-\*\*Vyshnavi Sukhavasi\*\*
-
-
-
-M.Tech Computer Science \& Engineering
-
-
+**Vyshnavi Sukhavasi**  
+M.Tech — Computer Science & Engineering
 
 GitHub: https://github.com/sukhavasivyshnavi
-
-
-
